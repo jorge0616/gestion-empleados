@@ -1,7 +1,13 @@
 package com.gestion.empleados.controlador;
 
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +27,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.gestion.empleados.entidades.Empleado;
 import com.gestion.empleados.servicio.EmpleadoService;
 import com.gestion.empleados.util.paginacion.PageRender;
+import com.gestion.empleados.util.reportes.EmpleadoExporterExcel;
+import com.gestion.empleados.util.reportes.EmpleadoExporterPDF;
+import com.lowagie.text.DocumentException;
 
 @Controller
 public class EmpleadoController {
@@ -38,7 +47,7 @@ public class EmpleadoController {
 
         modelo.put("empleado", empleado);
         modelo.put("titulo", "Detalles del empleado " + empleado.getNombre());
-        return "listar";
+        return "ver";
     }
 
     @GetMapping("/form")
@@ -78,7 +87,7 @@ public class EmpleadoController {
             return "redirect:/listar";
         }
         modelo.put("empleado", empleado);
-        modelo.put("titulo", "Editar empleado");
+        modelo.put("titulo", "Edición de empleado");
         return "form";
     }
 
@@ -102,6 +111,42 @@ public class EmpleadoController {
         modelo.addAttribute("page", pageRender);
 
         return "Listar";
+    }
+
+    @GetMapping("/exportarPDF")
+    public void exportarListadoDeEmpleadosEnPDF(HttpServletResponse response) throws DocumentException, IOException {
+        response.setContentType("application/PDF");
+
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        String fechaActual = dateFormatter.format(new Date());
+
+        String cabecera = "Content-Disposition";
+        String valor = "attachment; filename=Empleados_" +  fechaActual + ".pdf";
+        
+        response.setHeader(cabecera, valor);
+
+        List<Empleado> empleados = empleadoService.findAll();
+
+        EmpleadoExporterPDF exporter = new EmpleadoExporterPDF(empleados);
+        exporter.exportar(response);
+    }
+
+    @GetMapping("/exportarExcel")
+    public void exportarListadoDeEmpleadosEnExcel(HttpServletResponse response) throws DocumentException, IOException {
+        response.setContentType("application/octec-stream");
+
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        String fechaActual = dateFormatter.format(new Date());
+
+        String cabecera = "Content-Disposition";
+        String valor = "attachment; filename=Empleados_" +  fechaActual + ".xlsx";
+        
+        response.setHeader(cabecera, valor);
+
+        List<Empleado> empleados = empleadoService.findAll();
+
+        EmpleadoExporterExcel exporter = new EmpleadoExporterExcel(empleados);
+        exporter.exportar(response);
     }
     
 }

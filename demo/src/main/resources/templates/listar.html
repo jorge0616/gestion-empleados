@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
   <head th:replace="layout/layout :: head">
     <meta charset="uft-8">
     </head>
@@ -14,6 +15,11 @@
         <div class="card-body">
           <h4 class="card-tittle">
             <a th:href="@{/form}" class="btn btn-primary">Agregar empleado</a>
+
+            <a th:href="@{/exportarPDF}" class="btn btn-secondary">Exportar a PDF</a>
+
+            <a th:href="@{/exportarExcel}" class="btn btn-success">Exportar a Excel</a>
+
           </h4>
           <table class="table table-striped"> 
             <thead>
@@ -27,8 +33,8 @@
                 <th>Sexo</th>
                 <th>Salario</th>
                 <th>Detalles</th>
-                <th>Editar</th>
-                <th>Eliminar</th>
+                <th sec:authorize="hasRole('ADMIN')">Editar</th>
+                <th sec:authorize="hasRole('ADMIN')">Eliminar</th>
               </tr>
             </thead>
             <tbody>
@@ -42,8 +48,8 @@
                 <td th:text="${empleado.sexo}"></td>
                 <td th:text="${empleado.salario}"></td>
                 <td><a class="btn btn-info btn-sm btn-block" th:href="@{/ver/} + ${empleado.id}"><span class="fa-solid fa-eye"></span></a></td>
-                <td><a class="btn btn-warning btn-sm btn-block" th:href="@{/form/} + ${empleado.id}"><span class="fa-solid fa-pen-to-square"></span></a></td>
-                <td><a class="btn btn-danger btn-sm btn-block" th:href="@{/eliminar/} + ${empleado.id}" onclick="return confirm('¿Estas seguro de eliminar el empleado?');"><span class="fa-solid fa-trash-can"></span></a></td>
+                <td sec:authorize="hasRole('ADMIN')"><a class="btn btn-warning btn-sm btn-block" th:href="@{/form/} + ${empleado.id}"><span class="fa-solid fa-pen-to-square"></span></a></td>
+                <td sec:authorize="hasRole('ADMIN')"><a class="btn btn-danger btn-sm btn-block" th:href="@{/eliminar/} + ${empleado.id}" onclick="return confirm('¿Estas seguro de eliminar el empleado?');"><span class="fa-solid fa-trash-can"></span></a></td>
               </tr>
             </tbody>
           </table>
